@@ -1,6 +1,7 @@
 package com.example.jettipapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -82,6 +83,16 @@ fun TopHeader(totalPerPerson: Double = 133.0) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainContent() {
+    BillForm() { billAmnt ->
+        Log.d("AMT", "MainContent: $billAmnt")
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun BillForm(
+    modifier: Modifier = Modifier,
+    onValChange: (String) -> Unit = {}) {
     val totalBillState = remember {
         mutableStateOf("")
     }
@@ -89,24 +100,40 @@ fun MainContent() {
         totalBillState.value.trim().isNotEmpty()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
+
     Surface(
         modifier = Modifier
             .padding(2.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(
             corner = CornerSize(8.dp)),
-            border = BorderStroke(width = 1.dp, color = Color.LightGray)) {
-        Column() {
+        border = BorderStroke(width = 1.dp, color = Color.LightGray)) {
+        Column(modifier = Modifier.padding(6.dp), verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.Start) {
             InputField(
                 valueState = totalBillState,
                 labelId = "Enter Bill",
                 enabled = true,
                 isSingleLine = true, onAction = KeyboardActions {
                     if (!validState) return@KeyboardActions
-                    //Todo - onValueChanged
+                    onValChange(totalBillState.value.trim())
 
                     keyboardController?.hide()
                 })
+            if (validState) {
+                Row(
+                    modifier = Modifier.padding(3.dp),
+                    horizontalArrangement = Arrangement.Start) {
+                    Text(
+                        text = "Split",
+                        modifier = Modifier.align(
+                            alignment = Alignment.CenterVertically))
+                    Spacer(modifier = Modifier.width(120.dp))
+                }
+            }else {
+                Box() {
+                    
+                }
+            }
         }
     }
 }
